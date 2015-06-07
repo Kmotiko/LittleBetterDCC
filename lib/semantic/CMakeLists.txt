@@ -1,0 +1,1 @@
+add_library(semantic_analyzer semantic_analyzer.cpp)
