@@ -1,0 +1,7 @@
+language: cpp
+install:
+  - sudo apt-get update
+  - sudo apt-get install clang-3.6 cmake libboost1.55-all-dev
+script:
+  - cmake -DCMAKE_CXX_COMPILER=clang++-3.6
+  - make && make test
