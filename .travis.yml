@@ -1,4 +1,9 @@
 language: cpp
+compiler: 
+  - clang
+before_install:
+  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key|sudo apt-key add -
+  - sudo add-apt-repository --yes ppa:boost-latest/ppa
 install:
   - sudo apt-get update
   - sudo apt-get install clang-3.6 cmake libboost1.55-all-dev
