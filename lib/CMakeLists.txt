@@ -9,7 +9,7 @@ target_link_libraries(dcc
               codegen
               parser
               semantic_analyzer
-              boost_program_options-mt
+              boost_program_options
               )
 install(TARGETS dcc
   DESTINATION bin)
