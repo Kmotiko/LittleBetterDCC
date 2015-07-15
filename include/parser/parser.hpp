@@ -15,6 +15,7 @@
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 #include <boost/variant/apply_visitor.hpp>
 
+#include "include/helper.hpp"
 #include "include/ast/ast.hpp"
 #include "include/semantic/semantic_analayzer.hpp"
 
@@ -28,34 +29,6 @@ auto make_shared_ptr(Params && ... param){
       {return std::make_shared<T>(std::forward<decltype(param)>(param)...);}, std::forward<Params>(param)...
   );
 }
-
-
-// {{{
-template<typename Result, typename Function>
-struct wrapped_function{
-  Function f;
-  wrapped_function(Function f) : f(f){}
-  using result_type = Result;
-
-  template<typename T>
-  result_type operator()(T & val){
-    return f(val);
-  }
-
-  template<typename T>
-  result_type operator()(T const& val){
-    return f(val);
-  }
-};
-
-
-template<typename Result, typename Function>
-wrapped_function<Result, Function> make_wrapped_function(Function f)
-{
-  return wrapped_function<Result, Function>(f);
-}
-// }}}
-
 
 ///
 struct on_success_handler{
@@ -82,7 +55,7 @@ struct on_success_handler{
                   Iterator const first,
                   Iterator const end,
                   Iterator const begin) const{
-    auto f = make_wrapped_function<void>([first, end, begin, this](auto const& node){(*this)(node, first, end, begin);});
+    auto f = dcc::helper::make_wrapped_function<void>([first, end, begin, this](auto const& node){(*this)(node, first, end, begin);});
     boost::apply_visitor(f, ptr);
   }
 };
@@ -100,6 +73,31 @@ struct on_error_handler{
 };
 
 
+
+/// grammar to skip comment
+template <typename Iterator>
+class comment_skipper : public boost::spirit::qi::grammar<Iterator>{
+public:
+  comment_skipper() : comment_skipper::base_type(skipper){
+    skipper = boost::spirit::ascii::space | 
+              single_line_comment | 
+              multi_line_comment;
+    single_line_comment = "//" >> *(boost::spirit::qi::char_ - boost::spirit::qi::eol);
+    multi_line_comment = "/*" >> 
+                          *(boost::spirit::qi::char_ - &(boost::spirit::qi::lit("*") > boost::spirit::qi::lit("/")))
+                           >> boost::spirit::qi::lit("*/");
+  }
+private:
+  boost::spirit::qi::rule<Iterator> skipper;
+  boost::spirit::qi::rule<Iterator> single_line_comment;
+  boost::spirit::qi::rule<Iterator> multi_line_comment;
+};
+
+
+
+// TODO
+// implement detail of exception
+/// my own exception class
 class parse_exception : public std::exception{};
 
 
@@ -152,7 +150,7 @@ private :
   boost::spirit::qi::rule<Iterator, dcc::ast::one_of_expr(), Skipper> primary_expression;
   boost::spirit::qi::rule<Iterator, dcc::ast::one_of_expr(), Skipper> number_literal;
   boost::spirit::qi::rule<Iterator, std::string(), Skipper> type_specifier;
-  boost::spirit::qi::rule<Iterator, dcc::ast::one_of_expr(), Skipper, boost::spirit::qi::locals<std::string>> identifier;
+  boost::spirit::qi::rule<Iterator, dcc::ast::identifier_ptr(), Skipper, boost::spirit::qi::locals<std::string>> identifier;
   boost::spirit::qi::rule<Iterator, int(), Skipper> integer_literal;
 
   boost::spirit::qi::rule<Iterator, std::string(), Skipper> reserved_words;

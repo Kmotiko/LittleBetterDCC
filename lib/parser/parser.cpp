@@ -205,14 +205,15 @@ dcc::ast::module parser::parse(std::string const &code,
   boost::spirit::line_pos_iterator<std::string::const_iterator> const end =
       boost::spirit::line_pos_iterator<std::string::const_iterator>(code.end());
 
-  // TODO
-  // implement comment skipper instead of ascii::space_type
+  // comment skipper
+  dcc::parser::comment_skipper<boost::spirit::line_pos_iterator<std::string::const_iterator>> skipper;
   dcc::parser::dcc_grammar<
       boost::spirit::line_pos_iterator<std::string::const_iterator>,
-      boost::spirit::ascii::space_type> grammar(iter);
+      dcc::parser::comment_skipper<boost::spirit::line_pos_iterator<std::string::const_iterator>>
+      > grammar(iter);
   dcc::ast::translation_unit_ptr result;
   bool success = boost::spirit::qi::phrase_parse(
-      iter, end, grammar, boost::spirit::ascii::space, result);
+      iter, end, grammar, skipper, result);
   if (!success || iter == end) {
     // TODO
     // set more information...
