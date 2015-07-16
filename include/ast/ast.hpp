@@ -1,6 +1,7 @@
 #ifndef DCC_AST_HPP
 #define DCC_AST_HPP
 
+#include "include/helper.hpp"
 #include "include/ast/ast_fwd.hpp"
 
 #include <iostream>
@@ -11,6 +12,7 @@
 
 namespace dcc {
 namespace ast {
+
 
 // location
 struct src_loc {
@@ -27,7 +29,7 @@ struct base {
 public:
   base() noexcept {}
   virtual ~base() {}
-  virtual std::string to_string() {return "";}
+  virtual std::string to_string() = 0;
 
   src_loc start_loc;
   src_loc end_loc;
@@ -56,7 +58,8 @@ public:
   explicit number_literal(int val) noexcept : value(val) {}
   ~number_literal() {}
 
-  std::string to_string(){return "nunmber_literal";}
+
+  virtual std::string to_string() override {return "nunmber_literal : "  + std::to_string(value);}
 private:
 };
 
@@ -67,10 +70,8 @@ struct identifier : public expression {
 public:
   explicit identifier(std::string const &val) noexcept: expression(), value(val) {}
   ~identifier() {}
-  std::string to_string(){return "identifier : " + value + 
-                                  " start_pos : " + std::to_string(start_loc.line) 
-                                          + ":" + std::to_string(start_loc.col);
-  }
+  virtual std::string to_string() override {return "identifier : " + value;}
+
 
   std::string value;
 private:
@@ -82,7 +83,8 @@ struct jump_statement : public statement {
 public:
   jump_statement(one_of_expr const &expr) : statement(), ret_expr(expr) {}
   ~jump_statement() {}
-  std::string to_string(){return "jump_statement";}
+  virtual std::string to_string() override {return "jump_statement";}
+
 
   one_of_expr ret_expr;
 private:
@@ -95,7 +97,8 @@ public:
   explicit call_expression(one_of_expr const &func_name, std::vector<one_of_expr> const &args) noexcept
       : func_name(func_name), argument_list(args) {}
   ~call_expression() {}
-  std::string to_string(){return "call_expression";}
+  virtual std::string to_string() override {return "call_expression";}
+
 
   one_of_expr func_name;
   std::vector<one_of_expr> argument_list;
@@ -109,7 +112,8 @@ public:
   explicit binary_expression(std::string const &op, one_of_expr const &lhs, one_of_expr const &rhs) noexcept
       : operand(op), lhs(lhs), rhs(rhs) {}
   ~binary_expression() {}
-  std::string to_string(){return "binary_expression";}
+  virtual std::string to_string() override {return "binary_expression";}
+
 
   std::string operand;
   one_of_expr lhs;
@@ -121,52 +125,57 @@ private:
 // variable declaration
 struct variable_declaration : public statement {
 public:
-  explicit variable_declaration(std::string const &type, one_of_expr const &name) noexcept : statement(), type(type), name(name) {}
+  explicit variable_declaration(std::string const &type, identifier_ptr const &name) noexcept : statement(), type(type), name(name) {}
   ~variable_declaration() {}
-  std::string to_string(){return "variable_declaration";}
+  virtual std::string to_string() override {return "variable_declaration";}
+
 
   std::string type;
-  one_of_expr name;
+  identifier_ptr name;
 private:
 };
 
 
 // function statement
-struct function_statement {
+struct function_statement : public base{
 public:
   function_statement(std::vector<one_of_statement> const &var_decl_list,
                      std::vector<one_of_statement> const &statements)
       : var_decls(var_decl_list), statements(statements) {}
   ~function_statement() {}
-  std::string to_string(){return "function_statement";}
+  virtual std::string to_string() override {return "function_statement";}
 
-private:
+
   // variable decl list
   std::vector<one_of_statement> var_decls;
   // statement list
   std::vector<one_of_statement> statements;
+private:
 };
 
 
 // parameter
-//  : type_specifier , identifier
 struct parameter : public base {
 public:
   parameter(one_of_expr const &param) : param(param) {}
   ~parameter() {}
+
+  virtual std::string to_string() override {return "parameter";}
+
   one_of_expr param;
 private:
 };
 
 
 // prototype
-struct prototype {
+struct prototype : public base{
 public:
-  prototype(one_of_expr const &name, std::vector<one_of_expr> const &params) : func_name(name), param_list(params){}
+  prototype(identifier_ptr const &name, std::vector<one_of_expr> const &params) : func_name(name), param_list(params){}
   ~prototype() {}
-  std::string to_string(){return "prototype";}
+  virtual std::string to_string() override {return "prototype : " + func_name->value + "(" + ")";}
 
-  one_of_expr func_name;
+
+  identifier_ptr func_name;
   std::vector<one_of_expr> param_list;
 private:
 };
@@ -177,7 +186,8 @@ struct function_definition : public base{
 public:
   function_definition(prototype_ptr const &sig, function_statement_ptr const &statements) : base(), signature(sig), statements(statements) {}
   ~function_definition() {}
-  std::string to_string(){return "function_definition" + signature->to_string();}
+  virtual std::string to_string() override {return "function_definition : " + signature->to_string();}
+
 
   prototype_ptr signature;
   function_statement_ptr statements;
@@ -190,7 +200,8 @@ struct function_declaration : public base{
 public:
   function_declaration(prototype_ptr const &sig) : base(), signature(sig) {}
   ~function_declaration() {}
-  std::string to_string(){return "function_declaration" + signature->to_string();}
+  virtual std::string to_string() override {return "function_declaration" + signature->to_string();}
+
 
   prototype_ptr signature;
 private:
@@ -203,12 +214,14 @@ public:
   translation_unit(std::vector<function_declaration_ptr> const &decls, std::vector<function_definition_ptr> const &funcs) noexcept : 
     base(), func_decls(decls), functions(funcs) {}
   ~translation_unit() {}
-  std::string to_string(){return "translation_unit";}
+  virtual std::string to_string() override {return "translation_unit";}
+
 
   std::vector<function_declaration_ptr> func_decls;
   std::vector<function_definition_ptr> functions;
 private:
 };
+
 
 struct module {
 public:
