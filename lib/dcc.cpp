@@ -1,4 +1,5 @@
 #include "include/ast/ast.hpp"
+#include "include/ast/visitor.hpp"
 #include "include/parser/parser.hpp"
 #include "include/semantic/semantic_analayzer.hpp"
 
@@ -44,8 +45,11 @@ int main(int argc, char const* argv[])
     std::string code(it, last);
     dcc::ast::module mod = dcc::parser::parser::parse(code, name);
 
+    // do semantic analysis
+    dcc::semantic::scope::symbol_table scope = dcc::semantic::semantic_analayzer::analyze(mod);
+
     // TODO
-    // do semantic analysis and generate code
+    // generate code
   }
 
   return 0;

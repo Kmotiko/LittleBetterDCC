@@ -38,6 +38,21 @@ using call_expression_ptr       = std::shared_ptr<call_expression>;
 using number_literal_ptr        = std::shared_ptr<number_literal>;
 using identifier_ptr            = std::shared_ptr<identifier>;
 
+using translation_unit_wptr      = std::weak_ptr<translation_unit>;
+using function_declaration_wptr  = std::weak_ptr<function_declaration>;
+using function_definition_wptr   = std::weak_ptr<function_definition>;
+using prototype_wptr             = std::weak_ptr<prototype>;
+using variable_declaration_wptr  = std::weak_ptr<variable_declaration>;
+using function_statement_wptr    = std::weak_ptr<function_statement>;
+using parameter_wptr             = std::weak_ptr<parameter>;
+using jump_statement_wptr        = std::weak_ptr<jump_statement>;
+using expression_statement_wptr  = std::weak_ptr<expression_statement>;
+using function_statement_wptr    = std::weak_ptr<function_statement>;
+using binary_expression_wptr     = std::weak_ptr<binary_expression>;
+using call_expression_wptr       = std::weak_ptr<call_expression>;
+using number_literal_wptr        = std::weak_ptr<number_literal>;
+using identifier_wptr            = std::weak_ptr<identifier>;
+
 using one_of_expr = boost::variant<
         identifier_ptr,
         number_literal_ptr,

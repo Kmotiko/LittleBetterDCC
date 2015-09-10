@@ -1,1 +1,1 @@
-add_library(semantic_analyzer semantic_analyzer.cpp)
+add_library(semantic_analyzer semantic_analyzer.cpp scope.cpp symbol.cpp)

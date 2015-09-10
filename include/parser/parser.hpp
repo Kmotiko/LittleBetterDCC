@@ -30,7 +30,7 @@ auto make_shared_ptr(Params && ... param){
   );
 }
 
-///
+/// call back handler for success parsing
 struct on_success_handler{
 
   /// ctor
@@ -138,8 +138,8 @@ private :
   boost::spirit::qi::rule<Iterator, std::vector<dcc::ast::one_of_statement>(), Skipper> variable_declaration_list;
   boost::spirit::qi::rule<Iterator, dcc::ast::variable_declaration_ptr(), Skipper> variable_declaration;
   boost::spirit::qi::rule<Iterator, std::vector<dcc::ast::one_of_statement>(), Skipper> statement_list;
-  boost::spirit::qi::rule<Iterator, dcc::ast::one_of_expr(), Skipper> parameter;
-  boost::spirit::qi::rule<Iterator, std::vector<dcc::ast::one_of_expr>(), Skipper> parameter_list;
+  boost::spirit::qi::rule<Iterator, dcc::ast::parameter_ptr(), Skipper> parameter;
+  boost::spirit::qi::rule<Iterator, std::vector<dcc::ast::parameter_ptr>(), Skipper> parameter_list;
   boost::spirit::qi::rule<Iterator, std::vector<dcc::ast::one_of_expr>(), Skipper> argument_list;
 
   // expression

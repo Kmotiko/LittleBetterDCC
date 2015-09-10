@@ -88,7 +88,6 @@ dcc_grammar<Iterator, Skipper>::dcc_grammar(Iterator begin)
   // jump_statement
   statement = (expression_statement | jump_statement);
 
-  // parameter list
   // statement list
   // { statement }
   statement_list = (*(statement[boost::phoenix::push_back(
@@ -119,9 +118,10 @@ dcc_grammar<Iterator, Skipper>::dcc_grammar(Iterator begin)
 
   // parameter
   // type_specifier , IDENTIFIER
-  parameter = type_specifier > identifier
-              [boost::spirit::qi::_val = make_shared_ptr<dcc::ast::parameter>(boost::spirit::qi::_1)];
+  parameter = (type_specifier > identifier)
+              [boost::spirit::qi::_val = make_shared_ptr<dcc::ast::parameter>(boost::spirit::qi::_1, boost::spirit::qi::_2)];
 
+  // parameter list
   // expression statement
   // parameter , [ { "," , parameter } ]
   parameter_list = -(parameter[boost::phoenix::push_back(boost::spirit::qi::_val, boost::spirit::qi::_1)] % ',');
@@ -131,7 +131,7 @@ dcc_grammar<Iterator, Skipper>::dcc_grammar(Iterator begin)
   // ')'
   prototype = (type_specifier >> identifier >> '(' >> parameter_list >> ')')
               [boost::spirit::qi::_val = make_shared_ptr<dcc::ast::prototype>(
-                         boost::spirit::qi::_2, boost::spirit::qi::_3)];
+                         boost::spirit::qi::_1, boost::spirit::qi::_2, boost::spirit::qi::_3)];
 
   // function declaration
   // prototype , ";"
@@ -158,6 +158,11 @@ dcc_grammar<Iterator, Skipper>::dcc_grammar(Iterator begin)
   /// call_back on success
   using on_success_handler = boost::phoenix::function<on_success_handler>;
   boost::spirit::qi::on_success(translation_unit,
+                                on_success_handler()(boost::spirit::qi::_val,
+                                                     boost::spirit::qi::_1,
+                                                     boost::spirit::qi::_3,
+                                                     begin));
+  boost::spirit::qi::on_success(function_definition,
                                 on_success_handler()(boost::spirit::qi::_val,
                                                      boost::spirit::qi::_1,
                                                      boost::spirit::qi::_3,
