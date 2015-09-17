@@ -17,7 +17,6 @@
 
 #include "include/helper.hpp"
 #include "include/ast/ast.hpp"
-#include "include/semantic/semantic_analayzer.hpp"
 
 
 namespace dcc {

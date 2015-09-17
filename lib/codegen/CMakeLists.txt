@@ -1,1 +1,1 @@
-add_library(codegen codegen.cpp)
+add_library(codegen codegen.cpp ir_generator.cpp)

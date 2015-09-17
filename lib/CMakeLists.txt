@@ -6,10 +6,11 @@ add_subdirectory(codegen)
 add_executable(dcc dcc.cpp)
 target_link_libraries(dcc
               ast
-              codegen
               parser
               semantic_analyzer
+              codegen
               boost_program_options
+              ${LLVM_LIBS}
               )
 install(TARGETS dcc
   DESTINATION bin)

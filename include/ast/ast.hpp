@@ -85,7 +85,7 @@ public:
 
 
   std::string value;
-  dcc::semantic::symbol::variable_symbol_ptr symbol;
+  dcc::semantic::symbol::variable_symbol_wptr symbol;
 private:
 };
 

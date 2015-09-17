@@ -69,14 +69,14 @@ public:
   class visitor &visitor;
   ast_accepter(class visitor &visitor) : visitor(visitor){}
 
-  void accept(dcc::ast::module &mod){
+  virtual void accept(dcc::ast::module &mod){
     visitor.handle_pre_module();
     visitor.visit(mod);
     accept(mod.tunit);
     visitor.handle_post_module();
   }
 
-  void accept(dcc::ast::translation_unit_ptr &tu){
+  virtual void accept(dcc::ast::translation_unit_ptr &tu){
     visitor.handle_pre_translation_unit();
     visitor.visit(tu);
     for(auto func: tu->func_decls)
@@ -86,14 +86,14 @@ public:
     visitor.handle_post_translation_unit();
   }
 
-  void accept(dcc::ast::function_declaration_ptr &fdecl){
+  virtual void accept(dcc::ast::function_declaration_ptr &fdecl){
     visitor.handle_pre_func_decl();
     visitor.visit(fdecl);
     accept(fdecl->signature);
     visitor.handle_post_func_decl();
   }
 
-  void accept(dcc::ast::function_definition_ptr &func){
+  virtual void accept(dcc::ast::function_definition_ptr &func){
     visitor.handle_pre_func_def();
     visitor.visit(func);
     accept(func->signature);
@@ -101,7 +101,7 @@ public:
     visitor.handle_post_func_def();
   }
 
-  void accept(dcc::ast::prototype_ptr &proto){
+  virtual void accept(dcc::ast::prototype_ptr &proto){
     visitor.handle_pre_prototype();
     visitor.visit(proto);
     for(auto param : proto->param_list)
@@ -109,13 +109,13 @@ public:
     visitor.handle_post_prototype();
   }
 
-  void accept(dcc::ast::parameter_ptr &param){
+  virtual void accept(dcc::ast::parameter_ptr &param){
     visitor.handle_pre_parameter();
     visitor.visit(param);
     visitor.handle_post_parameter();
   }
   
-  void accept(dcc::ast::function_statement_ptr &fstmt){
+  virtual void accept(dcc::ast::function_statement_ptr &fstmt){
     visitor.handle_pre_func_stmt();
     visitor.visit(fstmt);
     for(auto stmt: fstmt->var_decls)
@@ -125,13 +125,13 @@ public:
     visitor.handle_post_func_stmt();
   }
   
-  void accept(dcc::ast::variable_declaration_ptr &vdecl){
+  virtual void accept(dcc::ast::variable_declaration_ptr &vdecl){
     visitor.handle_pre_variable_decl();
     visitor.visit(vdecl);
     visitor.handle_post_variable_decl();
   }
   
-  void accept(dcc::ast::binary_expression_ptr &expr){
+  virtual void accept(dcc::ast::binary_expression_ptr &expr){
     visitor.handle_pre_binary_expr();
     visitor.visit(expr);
     accept(expr->lhs);
@@ -140,7 +140,7 @@ public:
   }
   
 
-  void accept(dcc::ast::call_expression_ptr &expr){
+  virtual void accept(dcc::ast::call_expression_ptr &expr){
     visitor.handle_pre_call_expr();
     visitor.visit(expr);
     for(auto expr: expr->argument_list)
@@ -148,33 +148,33 @@ public:
     visitor.handle_post_call_expr();
   }
   
-  void accept(dcc::ast::jump_statement_ptr &jstmt){
+  virtual void accept(dcc::ast::jump_statement_ptr &jstmt){
     visitor.handle_pre_jump_stmt();
     visitor.visit(jstmt);
     accept(jstmt->ret_expr);
     visitor.handle_post_jump_stmt();
   }
   
-  void accept(dcc::ast::identifier_ptr &id){
+  virtual void accept(dcc::ast::identifier_ptr &id){
     visitor.handle_pre_identifier();
     visitor.visit(id);
     visitor.handle_post_identifier();
   }
   
-  void accept(dcc::ast::number_literal_ptr & numlit){
+  virtual void accept(dcc::ast::number_literal_ptr & numlit){
     visitor.handle_pre_number();
     visitor.visit(numlit);
     visitor.handle_post_number();
   }
   
-  void accept(dcc::ast::one_of_expr &expr){
+  virtual void accept(dcc::ast::one_of_expr &expr){
     auto f = dcc::helper::make_wrapped_function<void>(
                 [this](auto &expr){accept(expr);}
             );
     boost::apply_visitor(f, expr);
   }
   
-  void accept(dcc::ast::one_of_statement &stmt){
+  virtual void accept(dcc::ast::one_of_statement &stmt){
     auto f = dcc::helper::make_wrapped_function<void>(
                 [this](auto &stmt){accept(stmt);}
             );

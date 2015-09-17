@@ -11,7 +11,7 @@ namespace semantic {
 // And the other one is resolving phase.
 // DCC syntax not need multi step analayzer, 
 // but I implement it because for future improvement, 
-// for studying how to implement it.
+// and for studying how to implement multi phase analyzer.
 dcc::semantic::scope::symbol_table semantic_analayzer::analyze(dcc::ast::module &mod){
 
   // create symbol table

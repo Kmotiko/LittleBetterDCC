@@ -2,11 +2,18 @@
 #include "include/ast/visitor.hpp"
 #include "include/parser/parser.hpp"
 #include "include/semantic/semantic_analayzer.hpp"
+#include "include/codegen/ir_generator.hpp"
 
 #include <fstream>
 #include <iostream>
+#include <regex>
 
 #include <boost/program_options.hpp>
+
+#include <llvm/IR/IRPrintingPasses.h>
+#include <llvm/PassManager.h>
+#include <llvm/Support/FormattedStream.h>
+#include <llvm/Support/FileSystem.h>
 
 
 int main(int argc, char const* argv[])
@@ -34,7 +41,7 @@ int main(int argc, char const* argv[])
   boost::program_options::notify(vm);
 
 
-  // do parse
+  // TODO: export as driver 
   if (vm.count("input_file"))
   {
     // now, accept only one file.
@@ -43,13 +50,38 @@ int main(int argc, char const* argv[])
     std::istreambuf_iterator<char> it(ifs);
     std::istreambuf_iterator<char> last;
     std::string code(it, last);
+
+    // do parse
     dcc::ast::module mod = dcc::parser::parser::parse(code, name);
 
     // do semantic analysis
     dcc::semantic::scope::symbol_table scope = dcc::semantic::semantic_analayzer::analyze(mod);
 
-    // TODO
     // generate code
+    llvm::Module *module = dcc::codegen::ir_generator().generate(mod, scope);
+
+    // output file
+    std::string out_file;
+    if(vm.count("output_file")){
+      out_file = vm["output_file"].as<std::string>();
+    }else{
+      std::string format = "$1.ll";
+      std::regex re("(\\w+)\\.dc");
+      std::smatch result;
+      if(std::regex_match(name, result, re))
+        out_file = std::regex_replace(name, re, format);
+      else
+        out_file = name + ".ll";
+    }
+
+    // output ir
+    std::error_code error;
+    llvm::raw_fd_ostream raw_stream(out_file.c_str(), error,
+                                    llvm::sys::fs::OpenFlags::F_RW);
+    llvm::PassManager pm;
+    pm.add(llvm::createPrintModulePass(raw_stream));
+    pm.run(*module);
+    raw_stream.close();
   }
 
   return 0;
