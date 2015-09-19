@@ -222,7 +222,6 @@ void symbol_resolver::visit(dcc::ast::jump_statement_ptr &stmt) {
 void symbol_resolver::visit(dcc::ast::identifier_ptr &identifier) {
   auto variable_symbol = this->resolve_variable(identifier->value);
   if (variable_symbol == boost::none) {
-    // TODO: make more detail about binary expr
     error_messages.push_back("variable " + identifier->value +
                              " is not declared.\n" + "referenced at " +
                              std::to_string(identifier->start_loc.line) + ":" +

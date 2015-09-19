@@ -10,7 +10,7 @@ target_link_libraries(dcc
               semantic_analyzer
               codegen
               boost_program_options
-              ${LLVM_LIBS}
+              ${LLVM_LIB_NAMES}
               )
 install(TARGETS dcc
   DESTINATION bin)

@@ -4,6 +4,6 @@ target_link_libraries(codegen_test
                       semantic_analyzer 
                       parser 
                       ${Boost_LIBRARIES}
-                      ${LLVM_LIBS}
+                      ${LLVM_LIB_NAMES}
                       )
 add_test(codegen_test codegen_test)
